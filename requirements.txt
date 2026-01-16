@@ -4,3 +4,4 @@ motor
 python-dotenv
 pymongo
 email-validator
+argon2-cffi
