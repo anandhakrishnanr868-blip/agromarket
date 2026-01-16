@@ -1,14 +1,17 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from createuser import User
 from addproduct import product
-from database import user_collection as userTable, product_collection as productTable,cart_collection as cartTable
+from database import user_collection as userTable, product_collection as productTable,cart_collectionas cartTable
 from security import hash_password,verify_password,encode_response,decode_response
 from update import updateuser,updateproduct
 from fastapi import FastAPI, HTTPException
 from bson import ObjectId
 from filter import filterproduct
 from cart import addcart
+from chatbot import get_chat_response
+from pydantic import BaseModel
+
 
 
 
@@ -306,3 +309,12 @@ async def removecart(cart_id:str):
     
     return({"message":"cart removed successfully"})
 
+
+
+class Message(BaseModel):
+    msg: str
+
+@app.post("/chat")
+async def chat_endpoint(message: Message):
+    response = get_chat_response(message.msg)
+    return {"response": response}
