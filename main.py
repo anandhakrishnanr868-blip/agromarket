@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from createuser import User
 from addproduct import product
-from database import user_collection as userTable, product_collection as productTable,cart_collection as cartTable
-from security import hash_password,verify_password
+from database import user_collection as userTable, product_collection as productTable,cart as cartTable
+from security import hash_password,verify_password,encode_response,decode_response
 from update import updateuser,updateproduct
 from fastapi import FastAPI, HTTPException
 from bson import ObjectId
@@ -60,11 +60,10 @@ async def get_products():
 
     return products
 
-
 #fetch single product
 @app.get("/products/{product_id}")
 async def get_product_by_id(product_id: str):
-
+    product_id = decode_response(product_id)
     if not ObjectId.is_valid(product_id):
         raise HTTPException(status_code=400, detail="Invalid product ID")
 
@@ -74,18 +73,18 @@ async def get_product_by_id(product_id: str):
         raise HTTPException(status_code=404, detail="Product not found")
 
     return {
-        "id": str(product["_id"]),
+        "id": str(encode_response((product["_id"]))),
         "product_name": product.get("Product_name"),
         "price": product.get("price"),
         "quantity": product.get("quantity"),
         "description": product.get("description"),
         "image_url": product.get("image_url"),
-        "seller_id": product.get("user_id")
+        "seller_id": encode_response(product.get("user_id"))
     }
 #fetch user by id 
 @app.get("/user/{user_id}")
 async def get_user_by_id(user_id:str):
-
+    user_id = decode_response(user_id)
     if not ObjectId.is_valid(user_id):
         raise HTTPException(status_code=400, detail="invalid user id")
     
@@ -95,7 +94,7 @@ async def get_user_by_id(user_id:str):
         raise HTTPException(status_code=404, detail="user not found")
     
     return {
-        "seller_id":str(user["_id"]),
+        "seller_id":str(encode_response(user["_id"])),
         "seller_name":user.get("name"),
         "seller_email":user.get("email"),
         "seller_phone_no":user.get("number"),
@@ -111,7 +110,7 @@ async def fetch_users_by_role(role: str):
 
     async for u in cursor:
         users.append({
-            "id": str(u["_id"]),
+            "id": str(encode_response(u["_id"])),
             "name": u.get("name"),
             "email": u.get("email"),
             "number": u.get("number"),
@@ -124,7 +123,7 @@ async def fetch_users_by_role(role: str):
 #delete product by id
 @app.delete("/deleteproduct/{product_id}")
 async def delete_product(product_id:str):
-
+    product_id = decode_response(product_id)
     if not ObjectId.is_valid(product_id):
         raise HTTPException(status_code=400, detail="invalid product id")
 
@@ -138,7 +137,7 @@ async def delete_product(product_id:str):
 #delete user by id 
 @app.delete("/deleteuser/{user_id}")
 async def delete_user(user_id:str):
-
+    user_id = decode_response(user_id)
     if not ObjectId.is_valid(user_id):
         raise HTTPException(status_code=400, detail="invalid user id")
     result=await userTable.delete_one({"_id": ObjectId(user_id)})
@@ -159,12 +158,13 @@ async def login_user(number:str,password:str):
     if not verify_password(password,user['password']):
         raise HTTPException(status_code=401, detail="invalid credentials")
 
-    return{"message":"login successfully","user_id":str(user["_id"])}
+    return{"message":"login successfully","user_id":str(encode_response(user["_id"]))}
 
 
 #update user details
 @app.put("/updateuser/{user_id}")
 async def update_user(user_id,updateuser:updateuser):
+    user_id = decode_response(user_id)
     if not ObjectId.is_valid(user_id):
         raise HTTPException(status_code=404, detail="invalid user id")
     user = await userTable.find_one({"_id": ObjectId(user_id)})
@@ -192,6 +192,7 @@ async def update_user(user_id,updateuser:updateuser):
 #update product details
 @app.put("/updateproduct/{product_id}")
 async def update_product(product_id,update_product:updateproduct):
+    product_id = decode_response(product_id)
     if not ObjectId.is_valid(product_id):
         raise HTTPException(status_code=400, detail="invalid product id")
     product = await productTable.find_one({"_id": ObjectId(product_id)})
@@ -238,11 +239,11 @@ async def filter_products(filter:filterproduct):
 
     async for p in cursor:
         products.append({
-            "id": str(p["_id"]),
+            "id": str(encode_response(p["_id"])),
             "product_name": p.get("Product_name"),
             "price": p.get("price"),
             "quantity": p.get("quantity"),
-            "seller_id": p.get("user_id"),
+            "seller_id": encode_response(p.get("user_id")),
             "seller_pincode": p.get("pincode")
         })
 
@@ -256,7 +257,7 @@ async def get_users():
     full_table = userTable.find()
     async for user in full_table:
         users.append({
-            "id": str(user["_id"]),
+            "id": str (encode_response((user["_id"]))),
             "name": user.get("name"),
             "number": user.get("number"),
             "email": user.get("email"),
@@ -278,6 +279,7 @@ async def add_cart_item(cart:addcart):
 #fetch cart item by user id 
 @app.get("/cart/{user_id}")
 async def get_cart_by_user_id(user_id:str):
+    user_id = decode_response(user_id)
     if not ObjectId.is_valid(user_id):
         raise HTTPException(status_code=400, detail="invalid user id")
     
@@ -285,9 +287,21 @@ async def get_cart_by_user_id(user_id:str):
     data = cartTable.find({"user_id":user_id})
     async for item in data:
         cart_items.append({
-            "cart_id":str(item["_id"]),
-            "product_id":item.get("product_id")
+            "cart_id":str(encode_response((item["_id"]))),
+            "product_id":encode_response(item.get("product_id"))
         })
-
     return cart_items
 
+#remove cart
+@app.delete("/removecart/{cart_id}")
+async def removecart(cart_id:str):
+    cart_id = decode_response(cart_id)
+    if not ObjectId.is_valid(cart_id):
+        raise HTTPException(status_code=400 , detail="invalid cart")
+    
+    result = await cartTable.delete_one(({"_id": ObjectId(cart_id)}))
+
+    if result.deleted_count==0: 
+        raise HTTPException(status_code="cart not found")
+    
+    return({"message":"cart removed successfully"})
