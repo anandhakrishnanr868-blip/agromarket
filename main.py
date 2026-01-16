@@ -2,7 +2,7 @@ from fastapi import FastAPI,HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from createuser import User
 from addproduct import product
-from database import user_collection as userTable, product_collection as productTable,cart_collectionas cartTable
+from database import user_collection as userTable, product_collection as productTable,cart_collectionas as cartTable
 from security import hash_password,verify_password,encode_response,decode_response
 from update import updateuser,updateproduct
 from fastapi import FastAPI, HTTPException
@@ -318,3 +318,4 @@ class Message(BaseModel):
 async def chat_endpoint(message: Message):
     response = get_chat_response(message.msg)
     return {"response": response}
+
