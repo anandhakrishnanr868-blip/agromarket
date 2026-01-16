@@ -5,3 +5,7 @@ python-dotenv
 pymongo
 email-validator
 argon2-cffi
+requests
+httpx==1.7.0       # For async HTTP requests (optional)
+pytest==8.3.0      # For testing (optional)
+black==24.8.0      # Code formatting (optional)
