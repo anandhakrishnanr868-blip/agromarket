@@ -1,44 +1,50 @@
-# chatbot.py
-from pydantic import BaseModel
 import requests
+import os
+from dotenv import load_dotenv
 
-API_KEY = "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"  
+# Load environment variables
+load_dotenv()
+
+API_KEY = os.getenv("API_KEY")
+
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
-class CodeInput(BaseModel):
-    msg: str
 
-def get_chat_response(message: str) -> str:
+def get_chat_response(user_message: str) -> str:
     """
-    Sends a message to OpenRouter chat API and returns the model response.
-    Handles Unicode properly to avoid ASCII encoding errors.
+    Sends a message to OpenRouter and returns the chatbot response as string.
     """
+
+    if not API_KEY:
+        return "Error: API_KEY not found. Please set it in .env file."
+
     headers = {
         "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://agromarket-3.onrender.com",
+        "X-Title": "College Chatbot"
     }
 
     payload = {
-        "model": "openai/gpt-3.5-turbo",  # Use a valid OpenRouter model
+        "model": "openai/gpt-3.5-turbo",
         "messages": [
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": message}
-        ],
-        "temperature": 0.7
+            {"role": "user", "content": user_message}
+        ]
     }
 
     try:
-        res = requests.post(OPENROUTER_URL, json=payload, headers=headers, timeout=20)
-        res.raise_for_status()
-        res.encoding = 'utf-8'  # Force UTF-8 decoding
+        response = requests.post(
+            OPENROUTER_URL,
+            headers=headers,
+            json=payload,
+            timeout=20
+        )
+        response.raise_for_status()
     except requests.RequestException as e:
         return f"Error: Request failed — {str(e)}"
 
     try:
-        data = res.json()
-        # Ensure the content is a proper string
-        content = data["choices"][0]["message"]["content"]
-        return str(content)  # Keep as Unicode string
-    except (KeyError, ValueError):
-        return f"Error: Invalid JSON returned — {res.text}"
-
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
+    except Exception:
+        return f"Error: Invalid response format — {response.text}"
