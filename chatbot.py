@@ -2,7 +2,7 @@
 from pydantic import BaseModel
 import requests
 
-API_KEY = "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" 
+API_KEY = "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"  # Replace with your valid OpenRouter API key
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 class CodeInput(BaseModel):
