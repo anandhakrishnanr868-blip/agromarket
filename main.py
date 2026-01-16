@@ -48,15 +48,18 @@ async def get_products():
 
     async for product in productTable.find():
         products.append({
-            "id": str(product["_id"]),  
+            
+            "id": str(encode_response((product["_id"]))),
             "product_name": product.get("Product_name"),
             "price": product.get("price"),
             "quantity": product.get("quantity"),
             "description": product.get("description"),
-            "seller_id":product.get("user_id")
+            "image":product.get("image"),
+            "seller_id":encode_response(product.get("user_id")) 
         })
 
     return products
+
 
 #fetch single product
 @app.get("/products/{product_id}")
@@ -287,3 +290,4 @@ async def get_cart_by_user_id(user_id:str):
         })
 
     return cart_items
+
