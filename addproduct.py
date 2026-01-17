@@ -1,6 +1,6 @@
-from pydantic import BaseModel,EmailStr,Field,field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
-
+from security import decode_response
 
 class product(BaseModel):
     Product_name: str
@@ -9,4 +9,9 @@ class product(BaseModel):
     description: Optional[str] = None
     date: str
     user_id: str
-    image: str 
+    image: str
+
+    @field_validator("user_id")
+    @classmethod
+    def decode_user_id(cls, value: str) -> str:
+        return decode_response(value)
