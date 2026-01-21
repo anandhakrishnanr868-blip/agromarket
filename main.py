@@ -161,7 +161,7 @@ async def login_user(number:str,password:str):
     if not verify_password(password,user['password']):
         raise HTTPException(status_code=401, detail="invalid credentials")
 
-    return{"message":"login successfully","user_id":str(encode_response(user["_id"]))}
+    return{"message":"login successfully","user_id":str(encode_response(user["_id"])),"role":user["role"]}
 
 
 #update user details
@@ -318,3 +318,4 @@ class Message(BaseModel):
 async def chat_endpoint(message: Message):
     response = get_chat_response(message.msg)
     return {"response": response}
+
