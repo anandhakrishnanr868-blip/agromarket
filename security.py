@@ -14,9 +14,9 @@ def verify_password(password: str, hashed: str) -> bool:
         return False
 
 def encode_response(value: str) -> str:
-    
+    try:
       return base64.urlsafe_b64encode(value.encode()).decode()
-    
+    except Exception:
  
 
 def decode_response(value: str) -> str:
@@ -24,5 +24,6 @@ def decode_response(value: str) -> str:
      return base64.urlsafe_b64decode(value.encode()).decode()
     except Exception:
         return None
+
 
 
