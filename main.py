@@ -52,7 +52,7 @@ async def get_products():
     async for product in productTable.find():
         products.append({
             
-            "id": str(encode_response((product["_id"]))),
+            "id": encode_response(str(product["_id"])),
             "product_name": product.get("Product_name"),
             "price": product.get("price"),
             "quantity": product.get("quantity"),
@@ -76,7 +76,7 @@ async def get_product_by_id(product_id: str):
         raise HTTPException(status_code=404, detail="Product not found")
 
     return {
-        "id": str(encode_response((product["_id"]))),
+        "id": encode_response(str(product["_id"]))),
         "product_name": product.get("Product_name"),
         "price": product.get("price"),
         "quantity": product.get("quantity"),
@@ -97,7 +97,7 @@ async def get_user_by_id(user_id:str):
         raise HTTPException(status_code=404, detail="user not found")
     
     return {
-        "seller_id":str(encode_response(user["_id"])),
+        "seller_id":encode_response(str(user["_id"])),
         "seller_name":user.get("name"),
         "seller_email":user.get("email"),
         "seller_phone_no":user.get("number"),
@@ -113,7 +113,7 @@ async def fetch_users_by_role(role: str):
 
     async for u in cursor:
         users.append({
-            "id": str(encode_response(u["_id"])),
+            "id": encode_response(str(u["_id"])),
             "name": u.get("name"),
             "email": u.get("email"),
             "number": u.get("number"),
@@ -242,7 +242,7 @@ async def filter_products(filter:filterproduct):
 
     async for p in cursor:
         products.append({
-            "id": str(encode_response(p["_id"])),
+            "id": encode_response(str(p["_id"])),
             "product_name": p.get("Product_name"),
             "price": p.get("price"),
             "quantity": p.get("quantity"),
@@ -260,7 +260,7 @@ async def get_users():
     full_table = userTable.find()
     async for user in full_table:
         users.append({
-            "id": str (encode_response((user["_id"]))),
+            "id": encode_response(str(user["_id"]))),
             "name": user.get("name"),
             "number": user.get("number"),
             "email": user.get("email"),
@@ -290,7 +290,7 @@ async def get_cart_by_user_id(user_id:str):
     data = cartTable.find({"user_id":user_id})
     async for item in data:
         cart_items.append({
-            "cart_id":str(encode_response((item["_id"]))),
+            "cart_id":encode_response(str(item["_id"])),
             "product_id":encode_response(item.get("product_id"))
         })
     return cart_items
@@ -318,5 +318,6 @@ class Message(BaseModel):
 async def chat_endpoint(message: Message):
     response = get_chat_response(message.msg)
     return {"response": response}
+
 
 
