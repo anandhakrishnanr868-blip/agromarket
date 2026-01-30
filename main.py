@@ -281,21 +281,18 @@ async def add_cart_item(cart:addcart):
 
 #fetch cart item by user id 
 @app.get("/cart/{user_id}")
-async def get_cart_by_user_id(user_id: str):
+async def get_cart_by_user_id(user_id:str):
     user_id = decode_response(user_id)
-
-    if user_id is None:
-        raise HTTPException(status_code=400, detail="Invalid user id")
-
-    cart_items = []
-
-    cursor = cartTable.find({"user_id": user_id})
-    async for item in cursor:
-           cart_items.append({
-            "cart_id": encode_response(str(item["_id"])),
-            "product_id": encode_response(item.get("product_id"))
+    if not ObjectId.is_valid(user_id):
+        raise HTTPException(status_code=400, detail="invalid user id")
+    
+    cart_items=[]
+    data = cartTable.find({"user_id":user_id})
+    async for item in data:
+        cart_items.append({
+            "cart_id":encode_response(str(item["_id"])),
+            "product_id":encode_response(item.get("product_id"))
         })
-
     return cart_items
 
 #remove cart
@@ -321,6 +318,7 @@ class Message(BaseModel):
 async def chat_endpoint(message: Message):
     response = get_chat_response(message.msg)
     return {"response": response}
+
 
 
 
