@@ -284,7 +284,7 @@ async def add_cart_item(cart:addcart):
 async def get_cart_by_user_id(user_id: str):
     user_id = decode_response(user_id)
 
-    if not user_id:
+    if user_id is None:
         raise HTTPException(status_code=400, detail="Invalid user id")
 
     cart_items = []
@@ -321,6 +321,7 @@ class Message(BaseModel):
 async def chat_endpoint(message: Message):
     response = get_chat_response(message.msg)
     return {"response": response}
+
 
 
 
