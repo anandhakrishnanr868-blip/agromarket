@@ -291,7 +291,7 @@ async def get_cart_by_user_id(user_id: str):
 
     cursor = cartTable.find({"user_id": user_id})
     async for item in cursor:
-        cart_items.append({
+          cart_items.append({
             "cart_id": encode_response(str(item["_id"])),
             "product_id": encode_response(item.get("product_id"))
         })
@@ -321,6 +321,7 @@ class Message(BaseModel):
 async def chat_endpoint(message: Message):
     response = get_chat_response(message.msg)
     return {"response": response}
+
 
 
 
