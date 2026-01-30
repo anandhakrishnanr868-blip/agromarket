@@ -260,7 +260,7 @@ async def get_users():
     full_table = userTable.find()
     async for user in full_table:
         users.append({
-            "id": encode_response(str(user["_id"]))),
+            "id": encode_response(str(user["_id"])),
             "name": user.get("name"),
             "number": user.get("number"),
             "email": user.get("email"),
@@ -318,6 +318,7 @@ class Message(BaseModel):
 async def chat_endpoint(message: Message):
     response = get_chat_response(message.msg)
     return {"response": response}
+
 
 
 
