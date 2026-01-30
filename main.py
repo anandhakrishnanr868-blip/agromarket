@@ -76,7 +76,7 @@ async def get_product_by_id(product_id: str):
         raise HTTPException(status_code=404, detail="Product not found")
 
     return {
-        "id": encode_response(str(product["_id"]))),
+        "id": encode_response(str(product["_id"])),
         "product_name": product.get("Product_name"),
         "price": product.get("price"),
         "quantity": product.get("quantity"),
@@ -318,6 +318,7 @@ class Message(BaseModel):
 async def chat_endpoint(message: Message):
     response = get_chat_response(message.msg)
     return {"response": response}
+
 
 
 
