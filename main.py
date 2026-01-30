@@ -67,7 +67,7 @@ async def get_products():
 @app.get("/products/{product_id}")
 async def get_product_by_id(product_id: str):
     product_id = decode_response(product_id)
-    if not ObjectId.is_valid(product_id):
+    if product_id is None:
         raise HTTPException(status_code=400, detail="Invalid product ID")
 
     product = await productTable.find_one({"_id": ObjectId(product_id)})
@@ -315,6 +315,7 @@ class Message(BaseModel):
 async def chat_endpoint(message: Message):
     response = get_chat_response(message.msg)
     return {"response": response}
+
 
 
 
