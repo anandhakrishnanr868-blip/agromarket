@@ -282,9 +282,6 @@ async def add_cart_item(cart:addcart):
 #fetch cart item by user id 
 @app.get("/cart/{user_id}")
 async def get_cart_by_user_id(user_id:str):
-    user_id = decode_response(user_id)
-    if not ObjectId.is_valid(user_id):
-        raise HTTPException(status_code=400, detail="invalid user id")
     
     cart_items=[]
     data = cartTable.find({"user_id":user_id})
@@ -318,6 +315,7 @@ class Message(BaseModel):
 async def chat_endpoint(message: Message):
     response = get_chat_response(message.msg)
     return {"response": response}
+
 
 
 
