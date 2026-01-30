@@ -16,3 +16,6 @@ database = client["agromarket"]
 user_collection = database["users"]
 product_collection = database["products"]
 cart_collection = database["cart"]
+
+def create_unique_index():
+ user_collection.create_index("number",unique=True)
