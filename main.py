@@ -81,6 +81,7 @@ async def get_product_by_id(product_id: str):
         "price": product.get("price"),
         "quantity": product.get("quantity"),
         "description": product.get("description"),
+        "date":product.get("date"),
         "image_url": product.get("image"),
         "seller_id": encode_response(product.get("user_id"))
     }
@@ -315,6 +316,7 @@ class Message(BaseModel):
 async def chat_endpoint(message: Message):
     response = get_chat_response(message.msg)
     return {"response": response}
+
 
 
 
