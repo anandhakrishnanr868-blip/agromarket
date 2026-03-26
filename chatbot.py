@@ -1,7 +1,7 @@
 import requests
 import os 
 from dotenv import load_dotenv
-API_KEY = os.getenv("API")
+API_KEY = os.getenv("API_key")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
