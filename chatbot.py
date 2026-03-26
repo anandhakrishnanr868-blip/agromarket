@@ -2,64 +2,67 @@ import requests
 import os 
 from dotenv import load_dotenv
 
-# 1. CRITICAL: You must call the function to actually load the variables
+# Load environment variables from .env file
 load_dotenv() 
 
-# 2. Check your .env file; if it's written as API_KEY=..., use uppercase here
+# Ensure your .env file has: API_KEY=sk-or-v1-your-key-here
 API_KEY = os.getenv("API_KEY") 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 def get_chat_response(user_message: str) -> str:
-    """
-    Sends a message to OpenRouter and returns the chatbot response as a string.
-    """
-
     if not API_KEY:
-        return "Error: API_KEY not found. Please check your .env file and variable name."
+        return "Error: API_KEY not found. Please check your .env file."
 
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://agromarket-3.onrender.com", # Required by OpenRouter
-        "X-Title": "College Chatbot"
+        "HTTP-Referer": "https://agromarket-3.onrender.com",
+        "X-Title": "AgroMarket Assistant"
     }
 
     payload = {
-        "model": "openai/gpt-3.5-turbo", 
+        # Updated to the free model from your screenshot
+        "model": "openai/gpt-oss-120b:free", 
         "messages": [
+            {
+                "role": "system", 
+                "content": (
+                    "You are a specialized Agriculture Assistant. "
+                    "Your expertise is strictly limited to: "
+                    "1. Agriculture techniques and crop management. "
+                    "2. Government agriculture schemes and subsidies. "
+                    "3. Current crop market rates and trends. "
+                    "If the user asks about anything outside these three areas, "
+                    "you must politely decline and state that you only handle agriculture-related queries."
+                )
+            },
             {"role": "user", "content": user_message}
-        ]
+        ],
+        "temperature": 0.4 
     }
 
     try:
-        # Send the request
         response = requests.post(
             OPENROUTER_URL,
             headers=headers,
             json=payload,
-            timeout=20
+            timeout=30 # Increased timeout for larger models
         )
-        
-        # This will catch 4xx and 5xx errors
         response.raise_for_status()
         
-        # Parse JSON and safely navigate the dictionary
         data = response.json()
-        
-        # Using .get() prevents the code from crashing if 'choices' is missing
         choices = data.get("choices", [])
+        
         if choices:
-            return choices[0].get("message", {}).get("content", "No content in message.")
+            return choices[0].get("message", {}).get("content", "No content found.")
         else:
-            return f"Error: Unexpected API response structure: {data}"
+            return f"Error: The model returned an empty response. {data}"
 
     except requests.exceptions.HTTPError as http_err:
-        return f"HTTP error occurred: {http_err} - {response.text}"
-    except requests.RequestException as e:
-        return f"Connection error: {str(e)}"
+        # This will help debug that 401 'User Not Found' error
+        return f"Access Error: {http_err} - Check if your API Key is correct."
     except Exception as e:
-        return f"An unexpected error occurred: {str(e)}"
+        return f"Error: {str(e)}"
 
-# --- Example Usage ---
-# if __name__ == "__main__":
-#     print(get_chat_response("Hello, what services do you provide?"))
+# --- Test ---
+# print(get_chat_response("What are the current market rates for wheat?"))
